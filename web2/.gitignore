@@ -1,0 +1,83 @@
+# ============================================
+# DEPENDENCIAS (NUNCA subir a GitHub)
+# ============================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+
+# ============================================
+# NEXT.JS
+# ============================================
+.next/
+.out/
+.next/cache/
+.next/server/
+.next/static/
+.next/build-manifest.json
+.next/react-loadable-manifest.json
+.next/BUILD_ID
+
+# ============================================
+# ENTORNOS Y SECRETOS
+# ============================================
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.pem
+*.key
+
+# ============================================
+# IDE Y EDITORES
+# ============================================
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# ============================================
+# SISTEMA OPERATIVO
+# ============================================
+.DS_Store
+Thumbs.db
+ehthumbs.db
+
+# ============================================
+# LOGS Y TEMPORALES
+# ============================================
+logs/
+*.log
+tmp/
+temp/
+*.tmp
+*.temp
+
+# ============================================
+# BUILD OUTPUT (opcional, si quieres subirlo)
+# ============================================
+# out/
+# dist/
+# build/
+
+# ============================================
+# TESTING Y COBERTURA
+# ============================================
+coverage/
+.nyc_output/
+*.lcov
+
+# ============================================
+# TYPESCRIPT
+# ============================================
+*.tsbuildinfo
+next-env.d.ts
+
+# ============================================
+# OTROS
+# ============================================
+*.md
+!README.md
