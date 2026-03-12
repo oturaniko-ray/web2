@@ -1,0 +1,10 @@
+﻿
+FullName                                                  Length LastWriteTime     
+--------                                                  ------ -------------     
+C:\proyectos\web2\public\videos\delivery-urban.mp4       2287149 12/03/2026 6:33:21
+C:\proyectos\web2\public\videos\logistics-hero.mp4       4129788 12/03/2026 6:33:04
+C:\proyectos\web2\public\videos\logistics-network.mp4    3077327 12/03/2026 6:47:55
+C:\proyectos\web2\public\videos\team-working.mp4         4478715 12/03/2026 6:33:15
+C:\proyectos\web2\public\videos\warehouse-automation.mp4 2473123 12/03/2026 6:37:25
+
+

@@ -1,0 +1,62 @@
+﻿[
+    {
+        "file":  "delivery-urban.mp4",
+        "slug":  "delivery-urban",
+        "title":  "Delivery Urban",
+        "poster":  "/posters/delivery-urban.jpg",
+        "thumbs":  [
+                       "/thumbs/delivery-urban-320.jpg",
+                       "/thumbs/delivery-urban-640.jpg"
+                   ],
+        "description":  "",
+        "subtitles":  ""
+    },
+    {
+        "file":  "logistics-hero.mp4",
+        "slug":  "logistics-hero",
+        "title":  "Logistics Hero",
+        "poster":  "/posters/logistics-hero.jpg",
+        "thumbs":  [
+                       "/thumbs/logistics-hero-320.jpg",
+                       "/thumbs/logistics-hero-640.jpg"
+                   ],
+        "description":  "",
+        "subtitles":  ""
+    },
+    {
+        "file":  "logistics-network.mp4",
+        "slug":  "logistics-network",
+        "title":  "Logistics Network",
+        "poster":  "/posters/logistics-network.jpg",
+        "thumbs":  [
+                       "/thumbs/logistics-network-320.jpg",
+                       "/thumbs/logistics-network-640.jpg"
+                   ],
+        "description":  "",
+        "subtitles":  ""
+    },
+    {
+        "file":  "team-working.mp4",
+        "slug":  "team-working",
+        "title":  "Team Working",
+        "poster":  "/posters/team-working.jpg",
+        "thumbs":  [
+                       "/thumbs/team-working-320.jpg",
+                       "/thumbs/team-working-640.jpg"
+                   ],
+        "description":  "",
+        "subtitles":  ""
+    },
+    {
+        "file":  "warehouse-automation.mp4",
+        "slug":  "warehouse-automation",
+        "title":  "Warehouse Automation",
+        "poster":  "/posters/warehouse-automation.jpg",
+        "thumbs":  [
+                       "/thumbs/warehouse-automation-320.jpg",
+                       "/thumbs/warehouse-automation-640.jpg"
+                   ],
+        "description":  "",
+        "subtitles":  ""
+    }
+]
