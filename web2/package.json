@@ -2,6 +2,7 @@
   "name": "quick-rabbit-web",
   "version": "1.0.0",
   "private": true,
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -9,6 +10,7 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
+    "coverage": "vitest run --coverage",
     "test:watch": "vitest"
   },
   "dependencies": {
