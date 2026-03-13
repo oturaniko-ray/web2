@@ -8,7 +8,7 @@ export default defineConfig({
     include: ['tests/**/*.test.ts', 'tests/**/*.test.tsx', 'tests/**/*.spec.ts', 'tests/**/*.spec.tsx'],
     setupFiles: ['./tests/setupTests.ts'],
     coverage: {
-      provider: 'c8',
+      provider: "v8", // o "istanbul",
       reporter: ['text', 'lcov'],
       all: true,
       include: ['components/**/*', 'hooks/**/*'],

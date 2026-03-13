@@ -1,0 +1,314 @@
+﻿*** Begin Patch
+*** Add File: hooks/useVideoPlayer.ts
++import { useCallback, useEffect, useRef, useState } from "react";
++
++export type UseVideoPlayerOptions = {
++  src?: string;
++  poster?: string;
++  autoplay?: boolean;
++};
++
++export function useVideoPlayer({ src, poster, autoplay }: UseVideoPlayerOptions = {}) {
++  const videoRef = useRef<HTMLVideoElement | null>(null);
++  const [isPlaying, setIsPlaying] = useState<boolean>(!!autoplay);
++
++  const play = useCallback(async () => {
++    const v = videoRef.current;
++    if (!v) return;
++    try {
++      await v.play();
++      setIsPlaying(true);
++    } catch {
++      setIsPlaying(false);
++    }
++  }, []);
++
++  const pause = useCallback(() => {
++    const v = videoRef.current;
++    if (!v) return;
++    v.pause();
++    setIsPlaying(false);
++  }, []);
++
++  const toggle = useCallback(async () => {
++    const v = videoRef.current;
++    if (!v) return;
++    if (v.paused) {
++      await play();
++    } else {
++      pause();
++    }
++  }, [play, pause]);
++
++  useEffect(() => {
++    const v = videoRef.current;
++    if (!v) return;
++    const handleEnded = () => setIsPlaying(false);
++    v.addEventListener("ended", handleEnded);
++    return () => {
++      v.removeEventListener("ended", handleEnded);
++    };
++  }, []);
++
++  return {
++    videoRef,
++    isPlaying,
++    play,
++    pause,
++    toggle,
++    src,
++    poster,
++  } as const;
++}
++
+*** End Patch
+*** Begin Patch
+*** Add File: components/VideoPlayerClient.tsx
++import React from "react";
++import { useVideoPlayer } from "../hooks/useVideoPlayer";
++
++type Props = {
++  src: string;
++  poster?: string;
++  title?: string;
++};
++
++export default function VideoPlayerClient({ src, poster, title }: Props) {
++  const { videoRef, isPlaying, toggle } = useVideoPlayer({ src, poster, autoplay: false });
++
++  const handleKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
++    if (e.key === " " || e.key === "Spacebar" || e.key === "Enter") {
++      e.preventDefault();
++      void toggle();
++    }
++  };
++
++  return (
++    <div>
++      <div>
++        <video
++          ref={videoRef}
++          src={src}
++          poster={poster}
++          aria-label={title ?? "video player"}
++          style={{ width: "100%", height: "auto", display: "block", background: "#000" }}
++        >
++          <source src={src} type="video/mp4" />
++        </video>
++      </div>
++
++      <div style={{ marginTop: 8, display: "flex", gap: 8, alignItems: "center" }}>
++        <button
++          aria-pressed={isPlaying}
++          onClick={() => void toggle()}
++          onKeyDown={handleKeyDown}
++          style={{ padding: "8px 12px", borderRadius: 6 }}
++        >
++          {isPlaying ? "Pause" : "Play"}
++        </button>
++
++        <a href={src} target="_blank" rel="noreferrer" style={{ textDecoration: "none" }}>
++          Ver
++        </a>
++      </div>
++    </div>
++  );
++}
++
+*** End Patch
+*** Begin Patch
+*** Add File: tests/setupTests.ts
++import "@testing-library/jest-dom";
++
++// Make HTMLMediaElement.paused reflect our __paused flag used in mocks
++Object.defineProperty(HTMLMediaElement.prototype, "paused", {
++  get() {
++    return (this as any).__paused ?? true;
++  },
++  configurable: true,
++});
++
+*** End Patch
+*** Begin Patch
+*** Add File: tests/VideoPlayerClient.ended.test.tsx
++import React from "react";
++import { render, screen, waitFor } from "@testing-library/react";
++import userEvent from "@testing-library/user-event";
++import { act } from "react-dom/test-utils";
++import VideoPlayerClient from "../components/VideoPlayerClient";
++import { vi } from "vitest";
++
++describe("VideoPlayerClient ended event", () => {
++  beforeEach(() => {
++    vi.spyOn(HTMLMediaElement.prototype, "play").mockImplementation(function (this: HTMLMediaElement) {
++      (this as any).__paused = false;
++      return Promise.resolve();
++    });
++    vi.spyOn(HTMLMediaElement.prototype, "pause").mockImplementation(function (this: HTMLMediaElement) {
++      (this as any).__paused = true;
++      return undefined as any;
++    });
++  });
++
++  afterEach(() => {
++    vi.restoreAllMocks();
++  });
++
++  it("sets isPlaying false when video ends", async () => {
++    render(<VideoPlayerClient src="/videos/delivery-urban.mp4" title="Delivery Urban" />);
++    const btn = screen.getByRole("button");
++
++    await act(async () => {
++      await userEvent.click(btn);
++    });
++    await waitFor(() => expect(btn).toHaveAttribute("aria-pressed", "true"));
++
++    const video = screen.getByLabelText("Delivery Urban") as HTMLVideoElement;
++    act(() => {
++      (video as any).__paused = true;
++      video.dispatchEvent(new Event("ended"));
++    });
++
++    await waitFor(() => {
++      expect(btn).toHaveAttribute("aria-pressed", "false");
++    });
++  });
++});
++
+*** End Patch
+*** Begin Patch
+*** Add File: tests/VideoPlayerClient.keyboard.test.tsx
++import React from "react";
++import { render, screen, waitFor, fireEvent } from "@testing-library/react";
++import { act } from "react-dom/test-utils";
++import VideoPlayerClient from "../components/VideoPlayerClient";
++import { vi } from "vitest";
++
++describe("VideoPlayerClient keyboard", () => {
++  beforeEach(() => {
++    vi.spyOn(HTMLMediaElement.prototype, "play").mockImplementation(function (this: HTMLMediaElement) {
++      (this as any).__paused = false;
++      return Promise.resolve();
++    });
++    vi.spyOn(HTMLMediaElement.prototype, "pause").mockImplementation(function (this: HTMLMediaElement) {
++      (this as any).__paused = true;
++      return undefined as any;
++    });
++  });
++
++  afterEach(() => {
++    vi.restoreAllMocks();
++  });
++
++  it("toggles play/pause with Space when button focused", async () => {
++    render(<VideoPlayerClient src="/videos/delivery-urban.mp4" title="Delivery Urban" />);
++
++    const btn = screen.getByRole("button", { name: /play/i });
++    btn.focus();
++
++    await act(async () => {
++      fireEvent.keyDown(btn, { key: " ", code: "Space", keyCode: 32, charCode: 32 });
++      fireEvent.keyUp(btn, { key: " ", code: "Space", keyCode: 32, charCode: 32 });
++    });
++    await waitFor(() => expect(btn).toHaveAttribute("aria-pressed", "true"));
++
++    await act(async () => {
++      fireEvent.keyDown(btn, { key: " ", code: "Space", keyCode: 32, charCode: 32 });
++      fireEvent.keyUp(btn, { key: " ", code: "Space", keyCode: 32, charCode: 32 });
++    });
++    await waitFor(() => expect(btn).toHaveAttribute("aria-pressed", "false"));
++  });
++});
++
+*** End Patch*** Begin Patch
+*** Add File: tests/VideoPlayerClient.keyboard.test.tsx
++import React from "react";
++import { render, screen, waitFor, fireEvent } from "@testing-library/react";
++import { act } from "react-dom/test-utils";
++import VideoPlayerClient from "../components/VideoPlayerClient";
++import { vi } from "vitest";
++
++describe("VideoPlayerClient keyboard", () => {
++  beforeEach(() => {
++    vi.spyOn(HTMLMediaElement.prototype, "play").mockImplementation(function (this: HTMLMediaElement) {
++      (this as any).__paused = false;
++      return Promise.resolve();
++    });
++    vi.spyOn(HTMLMediaElement.prototype, "pause").mockImplementation(function (this: HTMLMediaElement) {
++      (this as any).__paused = true;
++      return undefined as any;
++    });
++  });
++
++  afterEach(() => {
++    vi.restoreAllMocks();
++  });
++
++  it("toggles play/pause with Space when button focused", async () => {
++    render(<VideoPlayerClient src="/videos/delivery-urban.mp4" title="Delivery Urban" />);
++
++    const btn = screen.getByRole("button", { name: /play/i });
++    btn.focus();
++
++    await act(async () => {
++      fireEvent.keyDown(btn, { key: " ", code: "Space", keyCode: 32, charCode: 32 });
++      fireEvent.keyUp(btn, { key: " ", code: "Space", keyCode: 32, charCode: 32 });
++    });
++    await waitFor(() => expect(btn).toHaveAttribute("aria-pressed", "true"));
++
++    await act(async () => {
++      fireEvent.keyDown(btn, { key: " ", code: "Space", keyCode: 32, charCode: 32 });
++      fireEvent.keyUp(btn, { key: " ", code: "Space", keyCode: 32, charCode: 32 });
++    });
++    await waitFor(() => expect(btn).toHaveAttribute("aria-pressed", "false"));
++  });
++});
++
+*** End Patch
+*** Begin Patch
+*** Add File: tests/VideoPlayerClient.test.tsx
++import React from "react";
++import { render, screen, waitFor } from "@testing-library/react";
++import userEvent from "@testing-library/user-event";
++import { vi } from "vitest";
++import VideoPlayerClient from "../components/VideoPlayerClient";
++
++describe("VideoPlayerClient interaction (robust aria-pressed)", () => {
++  beforeEach(() => {
++    vi.spyOn(HTMLMediaElement.prototype, "play").mockImplementation(function (this: HTMLMediaElement) {
++      (this as any).__paused = false;
++      return Promise.resolve();
++    });
++    vi.spyOn(HTMLMediaElement.prototype, "pause").mockImplementation(function (this: HTMLMediaElement) {
++      (this as any).__paused = true;
++      return undefined as any;
++    });
++  });
++
++  afterEach(() => {
++    vi.restoreAllMocks();
++  });
++
++  it("toggles play/pause and updates aria-pressed reliably", async () => {
++    render(
++      <VideoPlayerClient
++        src="/videos/delivery-urban.mp4"
++        poster="/posters/delivery-urban.jpg"
++        title="Delivery Urban"
++      />
++    );
++
++    const playButton = screen.getByRole("button", { name: /play/i });
++    expect(playButton).toHaveAttribute("aria-pressed", "false");
++
++    await userEvent.click(playButton);
++    await waitFor(() => expect(playButton).toHaveAttribute("aria-pressed", "true"));
++
++    await userEvent.click(playButton);
++    await waitFor(() => expect(playButton).toHaveAttribute("aria-pressed", "false"));
++  });
++});
++
+*** End Patch
+
+
