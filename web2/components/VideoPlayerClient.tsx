@@ -1,5 +1,4 @@
-// components/VideoPlayerClient.tsx
-import React from "react";
+﻿import React from "react";
 import { useVideoPlayer } from "../hooks/useVideoPlayer";
 
 type Props = {
@@ -12,11 +11,8 @@ export default function VideoPlayerClient({ src, poster, title }: Props) {
   const { videoRef, isPlaying, toggle } = useVideoPlayer({ src, poster, autoplay: false });
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
-    // Normalizar Space y Enter para accesibilidad
     if (e.key === " " || e.key === "Spacebar" || e.key === "Enter") {
-      // Evitar que la barra espaciadora haga scroll en algunos entornos
       e.preventDefault();
-      // toggle puede ser asíncrono; no await aquí porque es manejado por el hook
       void toggle();
     }
   };

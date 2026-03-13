@@ -1,5 +1,4 @@
-// tests/VideoPlayerClient.test.tsx
-import React from "react";
+﻿import React from "react";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { vi } from "vitest";
@@ -30,15 +29,12 @@ describe("VideoPlayerClient interaction (robust aria-pressed)", () => {
       />
     );
 
-    // Selecciona el botón por su texto (Play / Pause) para evitar ambigüedad
     const playButton = screen.getByRole("button", { name: /play/i });
     expect(playButton).toHaveAttribute("aria-pressed", "false");
 
-    // Click para reproducir
     await userEvent.click(playButton);
     await waitFor(() => expect(playButton).toHaveAttribute("aria-pressed", "true"));
 
-    // Click para pausar
     await userEvent.click(playButton);
     await waitFor(() => expect(playButton).toHaveAttribute("aria-pressed", "false"));
   });

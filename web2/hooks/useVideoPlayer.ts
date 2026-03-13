@@ -1,5 +1,4 @@
-// hooks/useVideoPlayer.ts
-import { useCallback, useEffect, useRef, useState } from "react";
+﻿import { useCallback, useEffect, useRef, useState } from "react";
 
 export type UseVideoPlayerOptions = {
   src?: string;

@@ -1,5 +1,4 @@
-// tests/VideoPlayerClient.ended.test.tsx
-import React from "react";
+﻿import React from "react";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { act } from "react-dom/test-utils";
@@ -26,13 +25,11 @@ describe("VideoPlayerClient ended event", () => {
     render(<VideoPlayerClient src="/videos/delivery-urban.mp4" title="Delivery Urban" />);
     const btn = screen.getByRole("button");
 
-    // Play first
     await act(async () => {
       await userEvent.click(btn);
     });
     await waitFor(() => expect(btn).toHaveAttribute("aria-pressed", "true"));
 
-    // Simula ended dentro de act para asegurar sincronía
     const video = screen.getByLabelText("Delivery Urban") as HTMLVideoElement;
     act(() => {
       (video as any).__paused = true;

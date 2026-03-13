@@ -1,5 +1,4 @@
-// tests/VideoPlayerClient.keyboard.test.tsx
-import React from "react";
+﻿import React from "react";
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import { act } from "react-dom/test-utils";
 import VideoPlayerClient from "../components/VideoPlayerClient";
@@ -24,11 +23,9 @@ describe("VideoPlayerClient keyboard", () => {
   it("toggles play/pause with Space when button focused", async () => {
     render(<VideoPlayerClient src="/videos/delivery-urban.mp4" title="Delivery Urban" />);
 
-    // Selecciona por texto para asegurar que es el botón correcto
     const btn = screen.getByRole("button", { name: /play/i });
     btn.focus();
 
-    // Simula Space (keydown/keyup) dentro de act
     await act(async () => {
       fireEvent.keyDown(btn, { key: " ", code: "Space", keyCode: 32, charCode: 32 });
       fireEvent.keyUp(btn, { key: " ", code: "Space", keyCode: 32, charCode: 32 });

@@ -1,65 +1,88 @@
-'use client';
+// app/components/AnimatedIcon.tsx
+import React from 'react';
 
-import { LucideIcon } from 'lucide-react';
-import { motion } from 'framer-motion';
+type AnimationDef = {
+  initial?: Record<string, any>;
+  animate?: Record<string, any>;
+  transition?: Record<string, any>;
+};
 
-interface AnimatedIconProps {
-  icon: LucideIcon;
+type Props = {
+  name?: string;
   size?: number;
-  color?: string;
+  animation?: string;
   className?: string;
-  delay?: number;
-  animation?: 'fadeIn' | 'slideUp' | 'scale' | 'rotate' | 'bounce';
-}
+};
 
-export function AnimatedIcon({
-  icon: Icon,
-  size = 24,
-  color = '#00F0FF',
-  className = '',
-  delay = 0,
-  animation = 'fadeIn',
-}: AnimatedIconProps) {
-  const animations = {
-    fadeIn: {
-      initial: { opacity: 0 },
-      animate: { opacity: 1 },
-    },
-    slideUp: {
-      initial: { opacity: 0, y: 20 },
-      animate: { opacity: 1, y: 0 },
-    },
-    scale: {
-      initial: { opacity: 0, scale: 0 },
-      animate: { opacity: 1, scale: 1 },
-    },
-    rotate: {
-      initial: { rotate: -180 },
-      animate: { rotate: 0 },
-    },
-    bounce: {
-      initial: { y: -20 },
-      animate: { y: 0 },
-      transition: { type: 'spring', stiffness: 300 },
-    },
+const animations: Record<string, AnimationDef> = {
+  fade: {
+    initial: { opacity: 0 },
+    animate: { opacity: 1 },
+    transition: { duration: 0.3 }
+  },
+  slideUp: {
+    initial: { opacity: 0, y: 8 },
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: 0.35 }
+  },
+  pop: {
+    initial: { opacity: 0, scale: 0.9 },
+    animate: { opacity: 1, scale: 1 },
+    transition: { duration: 0.25 }
+  }
+};
+
+export default function AnimatedIcon({
+  name = '★',
+  size = 16,
+  animation = 'fade',
+  className
+}: Props) {
+  // Tomar la definición y proteger el acceso a transition
+  const anim = animations[animation] ?? animations.fade;
+  const initial = anim.initial ?? {};
+  const animate = anim.animate ?? {};
+  const transition = (anim as AnimationDef).transition ?? {};
+
+  // No dependemos de framer-motion aquí para evitar errores de tipado en build.
+  // Aplicamos estilos inline simples que reflejan la intención de la animación.
+  const baseStyle: React.CSSProperties = {
+    display: 'inline-block',
+    width: size,
+    height: size,
+    lineHeight: `${size}px`,
+    textAlign: 'center',
+    transition: Object.keys(transition).length
+      ? `all ${transition.duration ?? 0.25}s ${transition.easing ?? 'ease'}`
+      : undefined,
+    transform: initial.scale ? `scale(${initial.scale})` : undefined,
+    opacity: initial.opacity ?? 1,
+    transformOrigin: 'center'
+  };
+
+  // Cuando el componente se monta, aplicamos el estado "animate" con una pequeña delay
+  // para simular la animación sin depender de librerías externas.
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => {
+    const id = setTimeout(() => setMounted(true), 10);
+    return () => clearTimeout(id);
+  }, []);
+
+  const appliedStyle: React.CSSProperties = {
+    ...baseStyle,
+    opacity: mounted ? (animate.opacity ?? baseStyle.opacity) : baseStyle.opacity,
+    transform: mounted
+      ? animate.scale
+        ? `scale(${animate.scale})`
+        : baseStyle.transform
+      : baseStyle.transform,
+    // si animate tiene y (desplazamiento vertical), lo aplicamos con translateY
+    transformOrigin: 'center'
   };
 
   return (
-    <motion.div
-      initial={animations[animation].initial}
-      animate={animations[animation].animate}
-      transition={{ 
-        duration: 0.6, 
-        delay,
-        ...animations[animation].transition 
-      }}
-      className={className}
-    >
-      <Icon 
-        size={size} 
-        color={color}
-        className="stroke-[1.5]"
-      />
-    </motion.div>
+    <span aria-hidden className={className} style={appliedStyle}>
+      {name}
+    </span>
   );
 }
