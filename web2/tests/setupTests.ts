@@ -11,6 +11,16 @@ if (!Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype, 'paused')) {
   });
 }
 
+// Make HTMLMediaElement.paused reflect our __paused flag used in mocks
+Object.defineProperty(HTMLMediaElement.prototype, 'paused', {
+  get() {
+    // If __paused is explicitly set by our mocks, return it; otherwise default to true
+    return (this as any).__paused ?? true;
+  },
+  configurable: true,
+});
+
+
 // Mocks globales para play/pause que los tests esperan
 vi.spyOn(HTMLMediaElement.prototype, 'play').mockImplementation(function (this: HTMLMediaElement) {
   (this as any).__paused = false;

@@ -1,7 +1,8 @@
 // tests/VideoPlayerClient.ended.test.tsx
 import React from "react";
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { act } from "react-dom/test-utils";
 import VideoPlayerClient from "../components/VideoPlayerClient";
 import { vi } from "vitest";
 
@@ -24,10 +25,22 @@ describe("VideoPlayerClient ended event", () => {
   it("sets isPlaying false when video ends", async () => {
     render(<VideoPlayerClient src="/videos/delivery-urban.mp4" title="Delivery Urban" />);
     const btn = screen.getByRole("button");
-    await userEvent.click(btn);
-    // simulate ended
+
+    // Play first
+    await act(async () => {
+      await userEvent.click(btn);
+    });
+    await waitFor(() => expect(btn).toHaveAttribute("aria-pressed", "true"));
+
+    // Simula ended dentro de act para asegurar sincronía
     const video = screen.getByLabelText("Delivery Urban") as HTMLVideoElement;
-    video.dispatchEvent(new Event("ended"));
-    expect(btn).toHaveAttribute("aria-pressed", "false");
+    act(() => {
+      (video as any).__paused = true;
+      video.dispatchEvent(new Event("ended"));
+    });
+
+    await waitFor(() => {
+      expect(btn).toHaveAttribute("aria-pressed", "false");
+    });
   });
 });
